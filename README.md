@@ -1,0 +1,21 @@
+# mikro-jira
+Vue 3 + TypeScript frontend и Node.js API (Express + SQLite)
+
+## start
+1. create `.env` (можно взять из `.env.example`).
+2. start API:
+```bash
+npm run dev:api
+```
+3. in another terminal start front:
+```bash
+npm run dev
+```
+Frontend: `http://localhost:5173`  
+API: `http://localhost:3001`
+
+- on start API automatic applies SQL-scheme from `docs/database/schema.sql`.
+- base by default it is created in `data/mikro-jira.sqlite`.
+- the front end goes to the API via the `vite` proxy along the path `/api`.
+- Authorization: `register/login/refresh/logout` с access token + refresh cookie.
+- option  `Запомнить меня` stored as persistent session in `auth_sessions`.
