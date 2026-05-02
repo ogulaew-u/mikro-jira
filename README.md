@@ -19,3 +19,11 @@ API: `http://localhost:3001`
 - the front end goes to the API via the `vite` proxy along the path `/api`.
 - Authorization: `register/login/refresh/logout` с access token + refresh cookie.
 - option  `Запомнить меня` stored as persistent session in `auth_sessions`.
+
+ add new user:
+ - curl -X POST http://localhost:3001/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","displayName":"Test User","password":"123456","rememberMe":false}'
+
+look table:
+node --input-type=module -e "import Database from 'better-sqlite3'; const db = new Database('data/mikro-jira.sqlite'); console.table(db.prepare('SELECT * FROM users').all())"
