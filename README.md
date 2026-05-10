@@ -20,10 +20,15 @@ npm run dev
 Frontend: `http://localhost:5173`
 API: `http://localhost:3001`
 
-## Детали
+- on start API automatic applies SQL-scheme from `docs/database/schema.sql`.
+- base by default it is created in `data/mikro-jira.sqlite`.
+- the front end goes to the API via the `vite` proxy along the path `/api`.
+- Authorization: `register/login/refresh/logout` с access token + refresh cookie.
+- option  `Запомнить меня` stored as persistent session in `auth_sessions`.
+add new user:
+ - curl -X POST http://localhost:3001/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","displayName":"Test User","password":"123456","rememberMe":false}'
 
-- При старте API автоматически применяет SQL-схему из `docs/database/schema.sql`.
-- База по умолчанию создается в `data/mikro-jira.sqlite`.
-- Frontend ходит к API через Vite proxy по пути `/api`.
-- Авторизация: `register/login/refresh/logout` с access token и refresh cookie.
-- Опция "Запомнить меня" хранится как постоянная сессия в `auth_sessions`.
+look table:
+node --input-type=module -e "import Database from 'better-sqlite3'; const db = new Database('data/mikro-jira.sqlite'); console.table(db.prepare('SELECT * FROM users').all())"
