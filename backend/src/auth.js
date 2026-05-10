@@ -37,7 +37,7 @@ const buildPublicUser = (row) => ({
 const setRefreshCookie = (res, token, rememberMe) => {
   res.cookie('refreshToken', token, {
     httpOnly: true,
-    secure: false,
+    secure: config.isProduction,
     sameSite: 'lax',
     path: '/api/auth',
     ...(rememberMe ? { maxAge: 30 * 24 * 60 * 60 * 1000 } : {}),
@@ -47,7 +47,7 @@ const setRefreshCookie = (res, token, rememberMe) => {
 const clearRefreshCookie = (res) => {
   res.clearCookie('refreshToken', {
     httpOnly: true,
-    secure: false,
+    secure: config.isProduction,
     sameSite: 'lax',
     path: '/api/auth',
   })

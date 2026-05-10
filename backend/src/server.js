@@ -5,10 +5,9 @@ import { config } from './config.js'
 import {
   db,
   ensureWorkspaceForUser,
-  getCategoryByColumnCode,
-  getColumnCodeByCategory,
-  getLaneByCategory,
+  getLaneByColumnCode,
   getPrimaryBoardIdForUser,
+  normalizeColumnCode,
 } from './db.js'
 import {
   authMiddleware,
@@ -45,12 +44,12 @@ const getColumnIdByCode = db.prepare(
 )
 
 const parseTaskRow = (row) => {
-  const category = getCategoryByColumnCode(row.column_code)
+  const category = normalizeColumnCode(row.column_code) ?? 'solved'
   return {
     id: Number(row.id),
     text: row.title,
     category,
-    lane: getLaneByCategory(category),
+    lane: getLaneByColumnCode(category),
     dueDate: row.due_date ?? '',
   }
 }
@@ -76,6 +75,16 @@ const ensureTaskBelongsToUser = (taskId, userId) =>
        LIMIT 1`
     )
     .get(taskId, userId)
+
+const isDateInputValue = (value) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
+
+const normalizeDueDate = (value) => {
+  if (value === '') {
+    return ''
+  }
+
+  return isDateInputValue(value) ? value : null
+}
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true })
@@ -220,11 +229,21 @@ app.get('/api/tasks', authMiddleware, (req, res) => {
 
 app.post('/api/tasks', authMiddleware, (req, res) => {
   const text = String(req.body?.text ?? '').trim()
-  const category = String(req.body?.category ?? '')
-  const dueDate = String(req.body?.dueDate ?? '')
+  const columnCode = normalizeColumnCode(String(req.body?.category ?? ''))
+  const dueDate = normalizeDueDate(String(req.body?.dueDate ?? ''))
 
   if (!text) {
-    res.status(400).json({ error: 'Текст задачи обязателен.' })
+    res.status(400).json({ error: 'Text task not found' })
+    return
+  }
+
+  if (!columnCode) {
+    res.status(400).json({ error: 'Column not found.' })
+    return
+  }
+
+  if (dueDate === null) {
+    res.status(400).json({ error: 'Invalid due date format.' })
     return
   }
 
@@ -234,10 +253,9 @@ app.post('/api/tasks', authMiddleware, (req, res) => {
     return
   }
 
-  const columnCode = getColumnCodeByCategory(category)
   const column = getColumnIdByCode.get(boardId, columnCode)
   if (!column?.id) {
-    res.status(400).json({ error: 'Колонка не найдена.' })
+    res.status(400).json({ error: 'Column not found.' })
     return
   }
 
@@ -250,7 +268,7 @@ app.post('/api/tasks', authMiddleware, (req, res) => {
     )
     .get(boardId, Number(column.id), text)
   if (duplicate) {
-    res.status(409).json({ error: 'Такая задача с этой категорией уже существует. Измените текст.' })
+    res.status(409).json({ error: 'Task with this category already exists. Please change the text.' })
     return
   }
 
@@ -292,16 +310,25 @@ app.patch('/api/tasks/:taskId', authMiddleware, (req, res) => {
   }
 
   const text = String(req.body?.text ?? '').trim()
-  const category = String(req.body?.category ?? '')
-  const dueDate = String(req.body?.dueDate ?? '')
+  const columnCode = normalizeColumnCode(String(req.body?.category ?? ''))
+  const dueDate = normalizeDueDate(String(req.body?.dueDate ?? ''))
 
   if (!text) {
-    res.status(400).json({ error: 'Текст задачи обязателен.' })
+    res.status(400).json({ error: 'Text task not found' })
+    return
+  }
+
+  if (!columnCode) {
+    res.status(400).json({ error: 'Column not found.' })
+    return
+  }
+
+  if (dueDate === null) {
+    res.status(400).json({ error: 'Invalid due date format.' })
     return
   }
 
   const boardId = getPrimaryBoardIdForUser(req.auth.userId)
-  const columnCode = getColumnCodeByCategory(category)
   const column = getColumnIdByCode.get(boardId, columnCode)
   if (!column?.id) {
     res.status(400).json({ error: 'Колонка не найдена.' })
@@ -465,12 +492,18 @@ app.patch('/api/subtasks/:subtaskId', authMiddleware, (req, res) => {
   }
 
   if (typeof dueDate === 'string') {
+    const normalizedDueDate = normalizeDueDate(dueDate)
+    if (normalizedDueDate === null) {
+      res.status(400).json({ error: 'Invalid due date format.' })
+      return
+    }
+
     updates.push('due_date = ?')
-    params.push(dueDate || null)
+    params.push(normalizedDueDate || null)
   }
 
   if (!updates.length) {
-    res.status(400).json({ error: 'Нет данных для обновления.' })
+    res.status(400).json({ error: 'No data to update.' })
     return
   }
 
@@ -496,7 +529,7 @@ app.patch('/api/subtasks/:subtaskId', authMiddleware, (req, res) => {
 app.delete('/api/subtasks/:subtaskId', authMiddleware, (req, res) => {
   const subtaskId = Number(req.params.subtaskId)
   if (!Number.isFinite(subtaskId)) {
-    res.status(400).json({ error: 'Неверный subtask id.' })
+    res.status(400).json({ error: 'Invalid subtask id.' })
     return
   }
 
@@ -514,7 +547,7 @@ app.delete('/api/subtasks/:subtaskId', authMiddleware, (req, res) => {
     .get(subtaskId, req.auth.userId)
 
   if (!row) {
-    res.status(404).json({ error: 'Подзадача не найдена.' })
+    res.status(404).json({ error: 'Subtask not found.' })
     return
   }
 

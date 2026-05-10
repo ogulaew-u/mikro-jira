@@ -33,9 +33,9 @@ const createDefaultColumns = (boardId) => {
   const stmt = db.prepare(
     `INSERT OR IGNORE INTO board_columns (board_id, code, title, position, is_done_column)
      VALUES
-       (?, 'current', 'Текущие', 0, 0),
-       (?, 'deferred', 'Отложенные', 1, 0),
-       (?, 'solved', 'Решенные', 2, 1)`
+       (?, 'current', 'Current', 0, 0),
+       (?, 'deferred', 'Deferred', 1, 0),
+       (?, 'solved', 'Solved', 2, 1)`
   )
   stmt.run(boardId, boardId, boardId)
 }
@@ -106,21 +106,12 @@ export const getPrimaryBoardIdForUser = (userId) => {
   return row?.board_id ? Number(row.board_id) : null
 }
 
-export const getColumnCodeByCategory = (category) => {
-  if (category === 'Текущие') return 'current'
-  if (category === 'Отложенные') return 'deferred'
-  return 'solved'
-}
+export const columnCodes = new Set(['current', 'deferred', 'solved'])
 
-export const getCategoryByColumnCode = (code) => {
-  if (code === 'current') return 'Текущие'
-  if (code === 'deferred') return 'Отложенные'
-  return 'Решенные'
-}
+export const normalizeColumnCode = (code) => (columnCodes.has(code) ? code : null)
 
-export const getLaneByCategory = (category) => {
-  if (category === 'Текущие') return 'left'
-  if (category === 'Отложенные') return 'right'
+export const getLaneByColumnCode = (code) => {
+  if (code === 'current') return 'left'
+  if (code === 'deferred') return 'right'
   return 'bottom'
 }
-

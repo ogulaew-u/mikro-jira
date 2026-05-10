@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:api": "tsx watch backend/src/server.js",
+    "typecheck": "vue-tsc -b",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "start:api": "node backend/src/server.js"
@@ -13,7 +14,6 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.6.2",
-    "choco": "^0.2.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "express": "^5.2.1",
@@ -24,7 +24,6 @@
     "@types/node": "^24.10.1",
     "@vitejs/plugin-vue": "^6.0.2",
     "@vue/tsconfig": "^0.8.1",
-    "sqlite3": "^6.0.1",
     "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "vite": "^7.3.1",

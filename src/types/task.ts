@@ -1,8 +1,14 @@
 ﻿export type LaneId = 'left' | 'right' | 'bottom'
 
-export const categories = ['Текущие', 'Отложенные', 'Решенные'] as const
+export const categories = ['current', 'deferred', 'solved'] as const
 
 export type Category = (typeof categories)[number]
+
+export const categoryLabels: Record<Category, string> = {
+  current: 'Current',
+  deferred: 'Deferred',
+  solved: 'Solved',
+}
 
 export interface Task {
   id: number
@@ -27,9 +33,9 @@ export const TASKS_STORAGE_KEY = 'mikro-jira.tasks.v1'
 export const SUBTASKS_STORAGE_KEY = 'mikro-jira.subtasks.v1'
 
 export const categoryToLane: Record<Category, LaneId> = {
-  Текущие: 'left',
-  Отложенные: 'right',
-  Решенные: 'bottom',
+  current: 'left',
+  deferred: 'right',
+  solved: 'bottom',
 }
 
 export const laneName = (lane: LaneId) => {

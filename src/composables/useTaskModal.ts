@@ -60,11 +60,11 @@ export const useTaskModal = ({
   const isEditMode = computed(() => editingTaskId.value !== null)
   const laneHint = computed(() => laneName(categoryToLane[draftCategory.value]))
   const createModalTitle = computed(() => {
-    if (draftCategory.value === 'Текущие') {
+    if (draftCategory.value === 'current') {
       return 'Новая текущая задача'
     }
 
-    if (draftCategory.value === 'Отложенные') {
+    if (draftCategory.value === 'deferred') {
       return 'Новая отложенная задача'
     }
 
@@ -87,24 +87,24 @@ export const useTaskModal = ({
 
   const moveOptions = computed(() => {
     const currentCategory = editingOriginalCategory.value
-    if (currentCategory === 'Текущие') {
+    if (currentCategory === 'current') {
       return [
-        { label: 'Отложить', category: 'Отложенные' as Category },
-        { label: 'Решить', category: 'Решенные' as Category },
+        { label: 'Отложить', category: 'deferred' as Category },
+        { label: 'Решить', category: 'solved' as Category },
       ]
     }
 
-    if (currentCategory === 'Отложенные') {
+    if (currentCategory === 'deferred') {
       return [
-        { label: 'В текущие', category: 'Текущие' as Category },
-        { label: 'Решить', category: 'Решенные' as Category },
+        { label: 'В текущие', category: 'current' as Category },
+        { label: 'Решить', category: 'solved' as Category },
       ]
     }
 
-    if (currentCategory === 'Решенные') {
+    if (currentCategory === 'solved') {
       return [
-        { label: 'Вернуть в текущие', category: 'Текущие' as Category },
-        { label: 'В отложенные', category: 'Отложенные' as Category },
+        { label: 'Вернуть в текущие', category: 'current' as Category },
+        { label: 'В отложенные', category: 'deferred' as Category },
       ]
     }
 

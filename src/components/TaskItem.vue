@@ -1,4 +1,5 @@
 ﻿<script setup lang="ts">
+import { categoryLabels } from '../types/task'
 import type { Subtask, Task } from '../types/task'
 
 withDefaults(
@@ -39,7 +40,7 @@ const formatSubtaskDueDate = (value: string) => {
 
 <template>
   <li class="task-item clickable" @click="$emit('click')">
-    <span class="task-category">{{ task.category }}</span>
+    <span class="task-category">{{ categoryLabels[task.category] }}</span>
     <p>{{ task.text }}</p>
     <small>Срок: {{ formatDueDate(task.dueDate) }}</small>
 

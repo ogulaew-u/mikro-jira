@@ -126,7 +126,7 @@ const boardColumnsStyle = computed(() => {
 
     <section class="board" :style="boardColumnsStyle">
       <TaskColumn
-        title="Текущие"
+        title="Current"
         :tasks="leftTasks"
         :get-task-subtasks="getSubtasksByTaskId"
         empty-text="Нажмите +, чтобы добавить задачу."
@@ -137,7 +137,7 @@ const boardColumnsStyle = computed(() => {
       />
 
       <TaskColumn
-        title="Отложенные"
+        title="Deferred"
         :tasks="rightTasks"
         :get-task-subtasks="getSubtasksByTaskId"
         empty-text="Нажмите +, чтобы добавить задачу."
