@@ -24,7 +24,7 @@ API: `http://localhost:3001`
 - base by default it is created in `data/mikro-jira.sqlite`.
 - the front end goes to the API via the `vite` proxy along the path `/api`.
 - Authorization: `register/login/refresh/logout` с access token + refresh cookie.
-- option  `Запомнить меня` stored as persistent session in `auth_sessions`.
+- option  `remember me` stored as persistent session in `auth_sessions`.
 add new user:
  - curl -X POST http://localhost:3001/api/auth/register \
   -H "Content-Type: application/json" \
